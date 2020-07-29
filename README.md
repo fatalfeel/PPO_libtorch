@@ -1,4 +1,4 @@
-# PPO-libtorch
+# PPO-libtorch C++
 
 Cross Platform reinforcement learning AI on Ubuntu and Android
 
