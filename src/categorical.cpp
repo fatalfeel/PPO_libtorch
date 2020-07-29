@@ -45,8 +45,10 @@ torch::Tensor Categorical::Sample(torch::ArrayRef<int64_t> shape)
 	std::vector<int64_t> 	param_shape;
 	Tensor 					exp_probs;
 	Tensor 					probs_2d;
+	ensor 					sample_2d;
 
 	ext_sample_shape.insert(ext_sample_shape.end(), shape.begin(), shape.end());
+
 	param_shape = ext_sample_shape;
     param_shape.insert(param_shape.end(), {m_num_events});
 
@@ -57,7 +59,8 @@ torch::Tensor Categorical::Sample(torch::ArrayRef<int64_t> shape)
     else
         probs_2d = exp_probs.contiguous().view({-1, m_num_events});
 
-    Tensor sample_2d = torch::multinomial(probs_2d, 1, true);
+    sample_2d = torch::multinomial(probs_2d, 1, true);
+
     return sample_2d.contiguous().view(ext_sample_shape);
 }
 
