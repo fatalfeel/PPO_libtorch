@@ -4,8 +4,8 @@ using namespace torch;
 
 Categorical::Categorical(torch::Tensor probs)
 {
-	m_batch_shape = {};
-	m_event_shape = {};
+	//m_batch_shape = {};
+	//m_event_shape = {};
 
 	this->m_probs = probs / probs.sum(-1, true);
 	// 1.21e-7 is used as the epsilon to match PyTorch's Python results as closely
@@ -28,22 +28,29 @@ Categorical::~Categorical()
 {
 }
 
-std::vector<int64_t> Categorical::Extended_Shape(c10::ArrayRef<int64_t> sample_shape)
+/*std::vector<int64_t> Categorical::Extended_Shape(c10::ArrayRef<int64_t> sample_shape)
 {
     std::vector<int64_t> output_shape;
     output_shape.insert(output_shape.end(), sample_shape.begin(),  sample_shape.end());
     output_shape.insert(output_shape.end(), m_batch_shape.begin(), m_batch_shape.end());
     output_shape.insert(output_shape.end(),	m_event_shape.begin(), m_event_shape.end());
     return output_shape;
-}
+}*/
 
-torch::Tensor Categorical::Sample(torch::ArrayRef<int64_t> sample_shape)
+torch::Tensor Categorical::Sample(torch::ArrayRef<int64_t> shape)
 {
-	std::vector<int64_t> ext_sample_shape	= Extended_Shape(sample_shape);
-	std::vector<int64_t> param_shape 		= ext_sample_shape;
+	/*std::vector<int64_t> ext_sample_shape	= Extended_Shape(sample_shape);
+	std::vector<int64_t> param_shape 		= ext_sample_shape;*/
+	std::vector<int64_t> 	ext_sample_shape;
+	std::vector<int64_t> 	param_shape;
+	Tensor 					exp_probs;
+	Tensor 					probs_2d;
+
+	ext_sample_shape.insert(ext_sample_shape.end(), shape.begin(), shape.end());
+	param_shape = ext_sample_shape;
     param_shape.insert(param_shape.end(), {m_num_events});
-    Tensor 	exp_probs = m_probs.expand(param_shape);
-    Tensor 	probs_2d;
+
+    exp_probs = m_probs.expand(param_shape);
 
     if (m_probs.dim() == 1 || m_probs.size(0) == 1)
         probs_2d = exp_probs.view({-1, m_num_events});
