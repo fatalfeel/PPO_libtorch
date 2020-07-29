@@ -6,11 +6,14 @@ using namespace torch;
 #include "categorical.h"
 #include "ppo.h"
 
-CPPO::CPPO()
+CPPO::CPPO(double lr, std::tuple<double,double> betas, double gamma, double eps_clip)
 {
 	optim::AdamOptions options;
-	options.lr(m_lr);
-	options.betas(m_betas);
+	options.lr(lr);
+	options.betas(betas);
+
+	m_gamma 	= gamma;
+	m_eps_clip	= eps_clip;
 
 	m_policy_ac = new ActorCritic();
 	m_optimizer = new optim::Adam(m_policy_ac->parameters(), options);

@@ -16,7 +16,7 @@ public:
 
     torch::Tensor 	Actor_Forward(torch::Tensor& input);
     torch::Tensor	Critic_Forward(torch::Tensor& input);
-    torch::Tensor	Interact(torch::Tensor envstate, GameContent& gamedata);
+    int64_t			Interact(torch::Tensor envstate, GameContent* gamedata);
     CRITICRET		Calculation(torch::Tensor& states, torch::Tensor& actions);
 
     nn::Sequential	m_actor;

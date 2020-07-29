@@ -8,10 +8,12 @@ public:
     ~FlowControl();
 
     void Start();
+    void TrainingLoop();
 
 private:
-    int 	m_started;
-    CPPO*	m_ppo;
+    int 			m_started;
+    CPPO*			m_ppo;
+    GameContent*	m_gamedata;
 };
 
 #endif

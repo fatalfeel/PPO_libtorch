@@ -41,18 +41,27 @@ torch::Tensor ActorCritic::Critic_Forward(torch::Tensor& input)
 	return local_critic;
 }
 
-torch::Tensor ActorCritic::Interact(torch::Tensor envstate, GameContent& gamedata)
+int64_t ActorCritic::Interact(torch::Tensor envstate, GameContent* gamedata)
 {
 	torch::Tensor 	actor_actprob 	= Actor_Forward(envstate);
 	Categorical	distribute(actor_actprob);
 	torch::Tensor	action 			= distribute.Sample({1});
 	torch::Tensor   actlogprob  	= distribute.Log_Prob(action);
 
-	gamedata.m_states.push_back(envstate);
-	gamedata.m_actions.push_back(action);
-	gamedata.m_actorlogprobs.push_back(actlogprob);
+	//debug use
+	/*IntArrayRef s00 = actor_actprob.sizes();
+	IntArrayRef s01 = action.sizes();
+	IntArrayRef s02 = actlogprob.sizes();
+	float*		data_out00 	= (float*)actor_actprob.data_ptr();
+	int64_t*	data_out01 	= (int64_t*)action.data_ptr();
+	float*		data_out02 	= (float*)actlogprob.data_ptr();
+	int64_t		iact 		= action.detach().item().toLong();*/
 
-	return action.detach();
+	gamedata->m_states.push_back(envstate);
+	gamedata->m_actions.push_back(action);
+	gamedata->m_actorlogprobs.push_back(actlogprob);
+
+	return action.detach().item().toLong();
 }
 
 CRITICRET ActorCritic::Calculation(torch::Tensor& states, torch::Tensor& actions)
