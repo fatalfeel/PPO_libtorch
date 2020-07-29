@@ -2,11 +2,11 @@
 
 Cross Platform reinforcement learning AI on Ubuntu and Android
 
-1. preinstall libtorch
+[Preinstall libtorch]
 
 https://fatalfeel.blogspot.com/2020/06/building-libtorch-and-numpy-in-c.html
 
-2. preinstall Eclipse LUNA SR2 and CDT
+[Preinstall Eclipse LUNA SR2 and CDT]
 
 follows are my patch
 
@@ -14,6 +14,10 @@ Eclipse Luna SR2 64bits linux ADT + CDT + Openocd on Java8. Extract to /opt/ecli
 
 http://www.mediafire.com/file/8fb3dsi88j5iru9/eclipse_luna_adt_cdt_openocd.tar.gz
 
-3. source code explain refer to
+[Source code comment]
+
+https://github.com/fatalfeel/PPO_Pytorch
+
+[Source code lessons]
 
 https://fatalfeel.blogspot.com/2013/12/ppo-and-awr-guiding.html
