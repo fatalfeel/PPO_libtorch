@@ -45,7 +45,7 @@ torch::Tensor Categorical::Sample(torch::ArrayRef<int64_t> shape)
 	std::vector<int64_t> 	param_shape;
 	Tensor 					exp_probs;
 	Tensor 					probs_2d;
-	ensor 					sample_2d;
+	Tensor 					sample_2d;
 
 	ext_sample_shape.insert(ext_sample_shape.end(), shape.begin(), shape.end());
 
