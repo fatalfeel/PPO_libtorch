@@ -75,7 +75,31 @@ CRITICRET ActorCritic::Calculation(torch::Tensor& states, torch::Tensor& actions
 	cret.next_critic_values 		= Critic_Forward(states);
 	cret.next_critic_values			= torch::squeeze(cret.next_critic_values);
 
+	//debug use
+	/*float* data_out00 	= (float*)cret.critic_actlogprobs.data_ptr();
+	IntArrayRef s00 	= cret.critic_actlogprobs.sizes();*/
+
 	return cret;
+}
+
+void ActorCritic::Predict_Reward(torch::Tensor& next_state, GameContent* gamedata)
+{
+	torch::Tensor 	actor_actprob 	= Actor_Forward(next_state);
+	Categorical		distribute(actor_actprob);
+	torch::Tensor	action 			= distribute.Sample({1});
+	torch::Tensor   actlogprob  	= distribute.Log_Prob(action);
+	torch::Tensor	next_value  	= Critic_Forward(next_state);
+	torch::Tensor	data_value  	= next_value.detach();
+	std::vector<unsigned char>::iterator vit;
+
+    gamedata->m_states.push_back(next_state);
+    gamedata->m_actions.push_back(action);
+    gamedata->m_actorlogprobs.push_back(actlogprob);
+    gamedata->m_rewards.push_back(data_value);
+
+    vit 	= gamedata->m_bterminals.end()-1;
+    *vit	= true;
+    gamedata->m_bterminals.push_back(true);
 }
 
 

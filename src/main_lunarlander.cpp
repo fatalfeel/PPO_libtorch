@@ -14,7 +14,10 @@ static FlowControl* s_mainprocess;
 static void BtnHello( GtkWidget* widget, gpointer data )
 {
     g_print("Hello World\n");
+
     s_mainprocess->Start();
+    //debug test
+   	s_mainprocess->TrainingLoop();
 }
 
 static gboolean delete_event(GtkWidget *widget,

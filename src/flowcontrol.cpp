@@ -14,7 +14,7 @@ using namespace torch;
 FlowControl::FlowControl()
 {
 	m_started 	= 0;
-	m_ppo 		= new CPPO(0.0005, std::make_tuple(0.9, 0.999), 0.99, 0.2);
+	m_ppo 		= new CPPO((int64_t)4, (double)0.0005f, std::make_tuple((double)0.9f, (double)0.999f), (double)0.99f, (double)0.2f);
 	m_gamedata	= new GameContent();
 }
 
@@ -48,17 +48,22 @@ void FlowControl::TrainingLoop()
 	int64_t	action			= 0;
 
 	//simulator reward
-	Tensor reward 	= torch::tensor(ArrayRef<double>({1.1590785142386266}));
-	Tensor envstate = torch::tensor(ArrayRef<double>({0.00984659,1.3989865,0.4940299,-0.25793448,-0.01182567,-0.12153457,0.0,0.0}));
+	Tensor envstate = torch::tensor(ArrayRef<float>({0.00984659,1.3989865,0.4940299,-0.25793448,-0.01182567,-0.12153457,0.0,0.0}));
+	Tensor reward 	= torch::tensor(ArrayRef<float>({1.1590785142386266}));
 
-	for(int i_episode=1; i_episode < max_episodes+1; i_episode++)
-	{
-		for(int t=0; t < max_timesteps; t++)
-		{
-			m_gamedata->m_rewards.push_back(reward);
-			m_gamedata->m_bterminals.push_back(false);
-			action = m_ppo->m_policy_ac->Interact(envstate, m_gamedata);
-		}
-	}
+	action = m_ppo->m_policy_ac->Interact(envstate, m_gamedata);
+	m_gamedata->m_rewards.push_back(reward);
+	m_gamedata->m_bterminals.push_back(false);
+
+	action = m_ppo->m_policy_ac->Interact(envstate, m_gamedata);
+	m_gamedata->m_rewards.push_back(reward);
+	m_gamedata->m_bterminals.push_back(false);
+
+	action = m_ppo->m_policy_ac->Interact(envstate, m_gamedata);
+	m_gamedata->m_rewards.push_back(reward);
+	m_gamedata->m_bterminals.push_back(false);
+
+	m_ppo->m_policy_ac->Predict_Reward(envstate, m_gamedata);
+	m_ppo->Train_Update(m_gamedata);
 }
 
