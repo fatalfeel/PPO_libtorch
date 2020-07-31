@@ -1,0 +1,5 @@
+set osabi GNU/Linux
+file '/mnt/ssd/PycharmProjects/PPO_libtorch/android/application/src/main/obj/local/arm64-v8a/system/bin/app_process'
+set solib-absolute-prefix /mnt/ssd/PycharmProjects/PPO_libtorch/android/application/src/main/obj/local/arm64-v8a
+set solib-search-path /mnt/ssd/PycharmProjects/PPO_libtorch/android/application/src/main/obj/local/arm64-v8a:/mnt/ssd/PycharmProjects/PPO_libtorch/android/application/src/main/obj/local/arm64-v8a/system/bin:/mnt/ssd/PycharmProjects/PPO_libtorch/android/application/src/main/obj/local/arm64-v8a/system/lib
+directory /opt/android-ndk/toolchains/llvm/prebuilt/linux-x86_64/sysroot /opt/android-ndk/sources/android/support /opt/android-ndk/sources/cxx-stl/llvm-libc++ /opt/android-ndk/sources/cxx-stl/llvm-libc++abi/include jni/../cpp_src /opt/android-ndk/sources/cxx-stl/llvm-libc++/include
