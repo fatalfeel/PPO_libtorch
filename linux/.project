@@ -26,9 +26,9 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>cp_src</name>
+			<name>cpp_src</name>
 			<type>2</type>
-			<locationURI>PARENT-1-PROJECT_LOC/cp_src</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/cpp_src</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

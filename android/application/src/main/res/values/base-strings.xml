@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<resources>
+    <string name="app_name">PPO Sample</string>
+    <string name="intro_message">
+        <![CDATA[
+            This sample demonstrates how to use CardView introduced in the support library in
+            Android 9.0]]>
+    </string>
+</resources>
