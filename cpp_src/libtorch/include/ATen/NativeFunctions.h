@@ -253,7 +253,6 @@ CAFFE2_API Tensor ceil(const Tensor & self);
 CAFFE2_API Tensor & ceil_(Tensor & self);
 CAFFE2_API Tensor & ceil_out(Tensor & out, const Tensor & self);
 CAFFE2_API Tensor chain_matmul(TensorList matrices);
-CAFFE2_API std::vector<Tensor> unsafe_chunk(const Tensor & self, int64_t chunks, int64_t dim=0);
 CAFFE2_API std::vector<Tensor> chunk(const Tensor & self, int64_t chunks, int64_t dim=0);
 CAFFE2_API Tensor clamp(const Tensor & self, c10::optional<Scalar> min=c10::nullopt, c10::optional<Scalar> max=c10::nullopt);
 CAFFE2_API Tensor quantized_clamp(const Tensor & self, c10::optional<Scalar> min=c10::nullopt, c10::optional<Scalar> max=c10::nullopt);
@@ -814,9 +813,7 @@ CAFFE2_API Tensor softmax_cuda(const Tensor & self, int64_t dim, bool half_to_fl
 CAFFE2_API Tensor mkldnn_softmax(const Tensor & self, int64_t dim, bool half_to_float);
 CAFFE2_API Tensor softmax_backward_cpu(const Tensor & grad_output, const Tensor & output, int64_t dim, const Tensor & self);
 CAFFE2_API Tensor softmax_backward_cuda(const Tensor & grad_output, const Tensor & output, int64_t dim, const Tensor & self);
-CAFFE2_API std::vector<Tensor> unsafe_split(const Tensor & self, int64_t split_size, int64_t dim=0);
 CAFFE2_API std::vector<Tensor> split(const Tensor & self, int64_t split_size, int64_t dim=0);
-CAFFE2_API std::vector<Tensor> unsafe_split_with_sizes(const Tensor & self, IntArrayRef split_sizes, int64_t dim=0);
 CAFFE2_API std::vector<Tensor> split_with_sizes(const Tensor & self, IntArrayRef split_sizes, int64_t dim=0);
 CAFFE2_API Tensor squeeze(const Tensor & self);
 CAFFE2_API Tensor squeeze(const Tensor & self, int64_t dim);

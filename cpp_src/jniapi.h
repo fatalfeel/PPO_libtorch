@@ -22,7 +22,6 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_example_ppo_PPOViewActivity_nativeOnResume(JNIEnv* jenv, jobject obj);
     JNIEXPORT void JNICALL Java_com_example_ppo_PPOViewActivity_nativeOnPause(JNIEnv* jenv, jobject obj);
     JNIEXPORT void JNICALL Java_com_example_ppo_PPOViewActivity_nativeOnStop(JNIEnv* jenv, jobject obj);
-    JNIEXPORT void JNICALL Java_com_example_ppo_PPOViewActivity_nativeSetSurface(JNIEnv* jenv, jobject obj, jobject surface);
 };
 
 #endif // JNIAPI_H

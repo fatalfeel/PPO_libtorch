@@ -169,7 +169,6 @@ namespace TypeDefault {
   Tensor ceil(const Tensor & self);
   Tensor & ceil_(Tensor & self);
   Tensor chain_matmul(TensorList matrices);
-  std::vector<Tensor> unsafe_chunk(const Tensor & self, int64_t chunks, int64_t dim);
   std::vector<Tensor> chunk(const Tensor & self, int64_t chunks, int64_t dim);
   Tensor & clamp_(Tensor & self, c10::optional<Scalar> min, c10::optional<Scalar> max);
   Tensor & clamp_out_out(Tensor & out, const Tensor & self, c10::optional<Scalar> min, c10::optional<Scalar> max);
@@ -512,9 +511,7 @@ namespace TypeDefault {
   Tensor smm(const Tensor & self, const Tensor & mat2);
   Tensor softmax_int(const Tensor & self, int64_t dim, c10::optional<ScalarType> dtype);
   Tensor softmax_Dimname(const Tensor & self, Dimname dim, c10::optional<ScalarType> dtype);
-  std::vector<Tensor> unsafe_split_Tensor(const Tensor & self, int64_t split_size, int64_t dim);
   std::vector<Tensor> split_Tensor(const Tensor & self, int64_t split_size, int64_t dim);
-  std::vector<Tensor> unsafe_split_with_sizes(const Tensor & self, IntArrayRef split_sizes, int64_t dim);
   std::vector<Tensor> split_with_sizes(const Tensor & self, IntArrayRef split_sizes, int64_t dim);
   Tensor squeeze(const Tensor & self);
   Tensor squeeze_dim(const Tensor & self, int64_t dim);

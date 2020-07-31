@@ -3108,8 +3108,8 @@ struct TORCH_API SortBackward : public TraceableFunction {
   SavedVariable indices_;
 
 };
-struct TORCH_API SplitBackward : public Node {
-  using Node::Node;
+struct TORCH_API SplitBackward : public TraceableFunction {
+  using TraceableFunction::TraceableFunction;
   variable_list apply(variable_list&& grads) override;
   std::string name() const override { return "SplitBackward"; }
   void release_variables() override {
@@ -3124,42 +3124,10 @@ struct TORCH_API SplitBackward : public Node {
   int64_t dim = 0;
 
 };
-struct TORCH_API UnsafeSplitBackward : public TraceableFunction {
+struct TORCH_API SplitWithSizesBackward : public TraceableFunction {
   using TraceableFunction::TraceableFunction;
-  variable_list apply(variable_list&& grads) override;
-  std::string name() const override { return "UnsafeSplitBackward"; }
-  void release_variables() override {
-    std::lock_guard<std::mutex> lock(mutex_);
-    self_.reset_data();
-    self_.reset_grad_function();
-  }
-
-  std::vector<int64_t> self_sizes;
-  SavedVariable self_;
-  int64_t split_size = 0;
-  int64_t dim = 0;
-
-};
-struct TORCH_API SplitWithSizesBackward : public Node {
-  using Node::Node;
   variable_list apply(variable_list&& grads) override;
   std::string name() const override { return "SplitWithSizesBackward"; }
-  void release_variables() override {
-    std::lock_guard<std::mutex> lock(mutex_);
-    self_.reset_data();
-    self_.reset_grad_function();
-  }
-
-  std::vector<int64_t> self_sizes;
-  SavedVariable self_;
-  std::vector<int64_t> split_sizes;
-  int64_t dim = 0;
-
-};
-struct TORCH_API UnsafeSplitWithSizesBackward : public TraceableFunction {
-  using TraceableFunction::TraceableFunction;
-  variable_list apply(variable_list&& grads) override;
-  std::string name() const override { return "UnsafeSplitWithSizesBackward"; }
   void release_variables() override {
     std::lock_guard<std::mutex> lock(mutex_);
     self_.reset_data();
