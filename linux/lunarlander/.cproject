@@ -166,7 +166,7 @@
 						</tool>
 					</fileInfo>
 					<sourceEntries>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="lunarlander_cpp"/>
+						<entry excluding="jniapi.h|jniapi.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="lunarlander_cpp"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
@@ -291,6 +291,7 @@
 						</tool>
 					</fileInfo>
 					<sourceEntries>
+						<entry excluding="jniapi.h|jniapi.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="lunarlander_cpp"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
