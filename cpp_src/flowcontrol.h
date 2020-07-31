@@ -8,7 +8,7 @@ public:
     ~FlowControl();
 
     void Start();
-    void TrainingLoop();
+    void TrainingTest();
 
 private:
     int 			m_started;

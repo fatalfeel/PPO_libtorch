@@ -11,7 +11,7 @@ typedef struct _CRITICRET
 class ActorCritic : public nn::Module
 {
 public:
-    ActorCritic();
+    ActorCritic(torch::Dtype dtype);
     ~ActorCritic();
 
     torch::Tensor 	Actor_Forward(torch::Tensor& input);
@@ -22,6 +22,8 @@ public:
 
     nn::Sequential	m_actor;
     nn::Sequential 	m_critic;
+    //nn::Linear      m_L0{nullptr}; //debug use
+    //nn::Linear		m_L1{nullptr}; //debug use
 };
 
 #endif

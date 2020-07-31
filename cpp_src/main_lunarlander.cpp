@@ -17,7 +17,7 @@ static void BtnHello( GtkWidget* widget, gpointer data )
 
     s_mainprocess->Start();
     //debug test
-   	s_mainprocess->TrainingLoop();
+   	s_mainprocess->TrainingTest();
 }
 
 static gboolean delete_event(GtkWidget *widget,

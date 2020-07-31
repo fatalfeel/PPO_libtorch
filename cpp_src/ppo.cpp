@@ -16,7 +16,7 @@ CPPO::CPPO(int64_t train_epochs, double lr, std::tuple<double,double> betas, dou
 	m_gamma 		= gamma;
 	m_eps_clip		= eps_clip;
 
-	m_policy_ac = new ActorCritic();
+	m_policy_ac = new ActorCritic(torch::kFloat64);
 	m_optimizer = new optim::Adam(m_policy_ac->parameters(), options);
 }
 
@@ -34,48 +34,47 @@ void CPPO::Train_Update(GameContent* gamedata)
 	Tensor 									discounted_reward;
 
 	//debug use
-	/*torch::Tensor rdp;
-	float*			data_out02;
-	int				k = 0;*/
+	/*torch::Tensor	rdp;
+	double*			data_out02;*/
 
 	rewards				= {};
-	discounted_reward	= torch::tensor(ArrayRef<float>({0.0}));
+	discounted_reward	= torch::tensor(ArrayRef<double>({0.0}), torch::kFloat64);
 
 	for(it_reward=gamedata->m_rewards.end()-1, it_bterminal=gamedata->m_bterminals.end()-1;
 		it_reward!=gamedata->m_rewards.begin()-1 && it_bterminal!=gamedata->m_bterminals.begin()-1;
 		it_reward--,it_bterminal--)
 	{
 		//debug use
-		//float* data_out00 	= (float*)(*it_reward).data_ptr();
-		//float* data_out01 	= (float*)discounted_reward.data_ptr();
+		//double* data_out00 	= (double*)(*it_reward).data_ptr();
+		//double* data_out01 	= (double*)discounted_reward.data_ptr();
 		/*if(rewards.size()>0)
 		{
 			rdp			= rewards[k-1];
-			data_out02 	= (float*)rdp.data_ptr();
+			data_out02 	= (double*)rdp.data_ptr();
 		}*/
 
 		if(*it_bterminal)
-			discounted_reward = torch::tensor(ArrayRef<float>({0.0}));
+			discounted_reward = torch::tensor(ArrayRef<double>({0.0}), torch::kFloat64);
 
         discounted_reward = *it_reward + m_gamma * discounted_reward;
         rewards.insert(rewards.begin(),discounted_reward);
-        /*rdp			= rewards[k];
-        data_out02 	= (float*)rdp.data_ptr();
-        k++;*/
+
+        /*rdp			= rewards[0];
+        data_out02 	= (double*)rdp.data_ptr();*/
 	}
 
 	//debug use
 	/*rdp			= rewards[3];
-	data_out02 	= (float*)rdp.data_ptr();
+	data_out02 	= (double*)rdp.data_ptr();
 
 	rdp			= rewards[2];
-	data_out02 	= (float*)rdp.data_ptr();
+	data_out02 	= (double*)rdp.data_ptr();
 
 	rdp			= rewards[1];
-	data_out02 	= (float*)rdp.data_ptr();
+	data_out02 	= (double*)rdp.data_ptr();
 
 	rdp			= rewards[0];
-	data_out02 	= (float*)rdp.data_ptr();*/
+	data_out02 	= (double*)rdp.data_ptr();*/
 
 	torch::Tensor curr_states      	= torch::stack(gamedata->m_states).detach();
 	torch::Tensor curr_actions      = torch::stack(gamedata->m_actions).detach();
@@ -107,7 +106,32 @@ void CPPO::Train_Update(GameContent* gamedata)
 
 		m_optimizer->zero_grad();
 		ppoloss.mean().backward();
+
+		//debug use
+		/*torch::OrderedDict<std::string, torch::Tensor>param_L0 = m_policy_ac->m_L0->named_parameters();
+		for (auto &p : param_L0)
+		{
+			if (p.key().find("weight") != std::string::npos)
+			{
+				double* 	data_p0 = (double*)p.value().data_ptr();
+				IntArrayRef size_p0 = p.value().sizes();
+				int cc = 0;
+			}
+		}*/
+
 		m_optimizer->step();
+
+		//debug use
+		/*param_L0 = m_policy_ac->m_L0->named_parameters();
+		for (auto &p : param_L0)
+		{
+			if (p.key().find("weight") != std::string::npos)
+			{
+				double* 	data_p0 = (double*)p.value().data_ptr();
+				IntArrayRef size_p0 = p.value().sizes();
+				int cc = 0;
+			}
+		}*/
 	}
 }
 

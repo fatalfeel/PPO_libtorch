@@ -9,6 +9,7 @@ GameContent::GameContent()
 
 GameContent::~GameContent()
 {
+	ReleaseContent();
 }
 
 void GameContent::ReleaseContent()

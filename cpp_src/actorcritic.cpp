@@ -4,19 +4,36 @@ using namespace torch;
 #include "actorcritic.h"
 #include "categorical.h"
 
-ActorCritic::ActorCritic()
+ActorCritic::ActorCritic(torch::Dtype dtype)
 {
-	m_actor = nn::Sequential(nn::Linear(8, 64),
+	m_actor	= nn::Sequential(nn::Linear(8, 64),
 							nn::Functional(torch::tanh),
 							nn::Linear(64, 64),
-	                        nn::Functional(torch::tanh),
+							nn::Functional(torch::tanh),
 							nn::Linear(64, 4));
 
-	m_critic = nn::Sequential(nn::Linear(8, 64),
+	m_critic= nn::Sequential(nn::Linear(8, 64),
 							nn::Functional(torch::tanh),
 							nn::Linear(64, 64),
 							nn::Functional(torch::tanh),
 							nn::Linear(64, 1));
+	//debug use
+	/*m_L0 = nn::Linear(64, 64);
+	m_actor = nn::Sequential(nn::Linear(8, 64),
+							nn::Functional(torch::tanh),
+							m_L0,
+	                        nn::Functional(torch::tanh),
+							nn::Linear(64, 4));
+
+	m_L1 = nn::Linear(64, 64);
+	m_critic = nn::Sequential(nn::Linear(8, 64),
+							nn::Functional(torch::tanh),
+							m_L1,
+							nn::Functional(torch::tanh),
+							nn::Linear(64, 1));*/
+
+	m_actor->to(dtype);
+	m_critic->to(dtype);
 
 	nn::Module::register_module("ActorCritic::m_actor",  m_actor);
 	nn::Module::register_module("ActorCritic::m_critic", m_critic);
@@ -31,7 +48,14 @@ ActorCritic::~ActorCritic()
 torch::Tensor ActorCritic::Actor_Forward(torch::Tensor& input)
 {
 	torch::Tensor local_actor = m_actor->forward(input);
-	local_actor = torch::softmax(local_actor,-1);
+
+	//debug use
+	//double* data_out02 	= (double*)local_actor.data_ptr();
+
+	local_actor = torch::softmax(local_actor, -1, torch::kFloat64);
+
+	//data_out02 	= (double*)local_actor.data_ptr();
+
 	return local_actor;
 }
 
@@ -52,9 +76,9 @@ int64_t ActorCritic::Interact(torch::Tensor envstate, GameContent* gamedata)
 	/*IntArrayRef s00 = actor_actprob.sizes();
 	IntArrayRef s01 = action.sizes();
 	IntArrayRef s02 = actlogprob.sizes();
-	float*		data_out00 	= (float*)actor_actprob.data_ptr();
+	double*		data_out00 	= (double*)actor_actprob.data_ptr();
 	int64_t*	data_out01 	= (int64_t*)action.data_ptr();
-	float*		data_out02 	= (float*)actlogprob.data_ptr();
+	double*		data_out02 	= (double*)actlogprob.data_ptr();
 	int64_t		iact 		= action.detach().item().toLong();*/
 
 	gamedata->m_states.push_back(envstate);
@@ -76,8 +100,8 @@ CRITICRET ActorCritic::Calculation(torch::Tensor& states, torch::Tensor& actions
 	cret.next_critic_values			= torch::squeeze(cret.next_critic_values);
 
 	//debug use
-	/*float* data_out00 	= (float*)cret.critic_actlogprobs.data_ptr();
-	IntArrayRef s00 	= cret.critic_actlogprobs.sizes();*/
+	/*double* data_out00 	= (double*)cret.critic_actlogprobs.data_ptr();
+	IntArrayRef s00 		= cret.critic_actlogprobs.sizes();*/
 
 	return cret;
 }
