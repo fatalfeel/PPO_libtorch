@@ -5,7 +5,7 @@ typedef struct _CRITICRET
 {
 	torch::Tensor critic_actlogprobs;
 	torch::Tensor next_critic_values;
-	torch::Tensor entropy;
+	torch::Tensor entropys;
 }CRITICRET;
 
 class ActorCritic : public nn::Module

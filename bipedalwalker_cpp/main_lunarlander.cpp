@@ -5,7 +5,7 @@
 using namespace torch;
 #include "gamecontent.h"
 #include "actorcritic.h"
-#include "categorical.h"
+#include "normaldistribute.h"
 #include "ppo.h"
 #include "flowcontrol.h"
 

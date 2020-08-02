@@ -44,12 +44,20 @@ void FlowControl::TrainingTest()
 	int max_timesteps   	= 1500;
 	int avg_length      	= 0;
 	int timestep        	= 0;
-	double running_reward  	= 0;
-	int64_t	action			= 0;
+	double	running_reward  = 0;
+	Tensor	action;
 
 	//simulator reward
-	Tensor envstate = torch::tensor(ArrayRef<double>({0.00984659,1.3989865,0.4940299,-0.25793448,-0.01182567,-0.12153457,0.0,0.0}), torch::kFloat64);
-	Tensor reward 	= torch::tensor(ArrayRef<double>({1.1590785142386266}), torch::kFloat64);
+	Tensor envstate = torch::tensor(ArrayRef<double>({0.0085665,  0.00390062, 0.00911026, 0.01548401, -0.28943464,
+													 -0.63517225, 1.46211898, 0.79200919, 1.0,         0.2875464,
+													 -0.14784433, 0.17633283, 0.35682468, 1.0,         0.45404965,
+													  0.45920607, 0.47527719, 0.50424916, 0.55013949,  0.62055016,
+													  0.73044139, 0.66274732, 1.0 ,       1.0 }), torch::kFloat64);
+	Tensor reward 	= torch::tensor(ArrayRef<double>({-0.17278488148785262}), torch::kFloat64);
+
+	action = m_ppo->m_policy_ac->Interact(envstate, m_gamedata);
+	m_gamedata->m_rewards.push_back(reward);
+	m_gamedata->m_bterminals.push_back(false);
 
 	action = m_ppo->m_policy_ac->Interact(envstate, m_gamedata);
 	m_gamedata->m_rewards.push_back(reward);

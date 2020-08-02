@@ -69,7 +69,7 @@ int64_t ActorCritic::Interact(torch::Tensor envstate, GameContent* gamedata)
 {
 	torch::Tensor 	actor_actprob 	= Actor_Forward(envstate);
 	Categorical	distribute(actor_actprob);
-	torch::Tensor	action 			= distribute.Sample({1});
+	torch::Tensor	action 			= distribute.Sample();
 	torch::Tensor   actlogprob  	= distribute.Log_Prob(action);
 
 	//debug use
@@ -95,7 +95,7 @@ CRITICRET ActorCritic::Calculation(torch::Tensor& states, torch::Tensor& actions
 	torch::Tensor critic_actprobs   = Actor_Forward(states);
 	Categorical	distribute(critic_actprobs);
 	cret.critic_actlogprobs			= distribute.Log_Prob(actions);
-	cret.entropy            		= distribute.Entropy();
+	cret.entropys            		= distribute.Entropy();
 	cret.next_critic_values 		= Critic_Forward(states);
 	cret.next_critic_values			= torch::squeeze(cret.next_critic_values);
 
@@ -110,11 +110,15 @@ void ActorCritic::Predict_Reward(torch::Tensor& next_state, GameContent* gamedat
 {
 	torch::Tensor 	actor_actprob 	= Actor_Forward(next_state);
 	Categorical		distribute(actor_actprob);
-	torch::Tensor	action 			= distribute.Sample({1});
+	torch::Tensor	action 			= distribute.Sample();
 	torch::Tensor   actlogprob  	= distribute.Log_Prob(action);
 	torch::Tensor	next_value  	= Critic_Forward(next_state);
 	torch::Tensor	data_value  	= next_value.detach();
 	std::vector<unsigned char>::iterator vit;
+
+	//debug use
+	/*double* 	data_out01 	= (double*)data_value.data_ptr();
+	IntArrayRef s00 		= data_value.sizes();*/
 
     gamedata->m_states.push_back(next_state);
     gamedata->m_actions.push_back(action);

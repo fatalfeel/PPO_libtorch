@@ -101,8 +101,8 @@ void CPPO::Train_Update(GameContent* gamedata)
 		surr1   = ratios * advantages;
 		surr2   = torch::clamp(ratios, 1.0f-m_eps_clip, 1.0f+m_eps_clip) * advantages;
 
-		mseloss = 0.5*torch::mse_loss(vec_rewards, cret.next_critic_values.detach(), Reduction::Mean);
-		ppoloss	= -torch::min(surr1, surr2) + mseloss - 0.01*cret.entropy;
+		mseloss = 0.5*torch::mse_loss(cret.next_critic_values, vec_rewards, Reduction::Mean);
+		ppoloss	= -torch::min(surr1, surr2) + mseloss - 0.01*cret.entropys;
 
 		m_optimizer->zero_grad();
 		ppoloss.mean().backward();
