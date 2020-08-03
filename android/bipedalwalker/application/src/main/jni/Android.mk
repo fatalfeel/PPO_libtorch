@@ -3,61 +3,61 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 LOCAL_MODULE := libc10
 LOCAL_SRC_FILES := \
-../../../../../../bipedalwalker_cpp/libtorch/lib/libc10.a
+../../../../../libtorch/lib/libc10.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := libclog
 LOCAL_SRC_FILES := \
-../../../../../../bipedalwalker_cpp/libtorch/lib/libclog.a
+../../../../../libtorch/lib/libclog.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := libcpuinfo
 LOCAL_SRC_FILES := \
-../../../../../../bipedalwalker_cpp/libtorch/lib/libcpuinfo.a
+../../../../../libtorch/lib/libcpuinfo.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := libeigen_blas
 LOCAL_SRC_FILES := \
-../../../../../../bipedalwalker_cpp/libtorch/lib/libeigen_blas.a
+../../../../../libtorch/lib/libeigen_blas.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := libnnpack
 LOCAL_SRC_FILES := \
-../../../../../../bipedalwalker_cpp/libtorch/lib/libnnpack.a
+../../../../../libtorch/lib/libnnpack.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := libpthreadpool
 LOCAL_SRC_FILES := \
-../../../../../../bipedalwalker_cpp/libtorch/lib/libpthreadpool.a
+../../../../../libtorch/lib/libpthreadpool.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := libpytorch_qnnpack
 LOCAL_SRC_FILES := \
-../../../../../../bipedalwalker_cpp/libtorch/lib/libpytorch_qnnpack.a
+../../../../../libtorch/lib/libpytorch_qnnpack.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := libtorch
 LOCAL_SRC_FILES := \
-../../../../../../bipedalwalker_cpp/libtorch/lib/libtorch.a
+../../../../../libtorch/lib/libtorch.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := libtorch_cpu
 LOCAL_SRC_FILES := \
-../../../../../../bipedalwalker_cpp/libtorch/lib/libtorch_cpu.a
+../../../../../libtorch/lib/libtorch_cpu.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := libXNNPACK
 LOCAL_SRC_FILES := \
-../../../../../../bipedalwalker_cpp/libtorch/lib/libXNNPACK.a
+../../../../../libtorch/lib/libXNNPACK.a
 include $(PREBUILT_STATIC_LIBRARY)
 ##############################
 ########## libppo.so #########
@@ -75,14 +75,13 @@ endif
 
 LOCAL_C_INCLUDES := \
 $(LOCAL_PATH)/../../../../../../bipedalwalker_cpp \
-$(LOCAL_PATH)/../../../../../../bipedalwalker_cpp/libtorch/include \
-$(LOCAL_PATH)/../../../../../../bipedalwalker_cpp/libtorch/include/torch/csrc/api/include
+$(LOCAL_PATH)/../../../../../libtorch/include \
+$(LOCAL_PATH)/../../../../../libtorch/include/torch/csrc/api/include
                 
 LOCAL_SRC_FILES := \
 ../../../../../../bipedalwalker_cpp/jniapi.cpp \
 ../../../../../../bipedalwalker_cpp/link_list.cpp \
-../../../../../../bipedalwalker_cpp/servermessage.cpp \
-../../../../../../bipedalwalker_cpp/actorcritic.cpp
+../../../../../../bipedalwalker_cpp/servermessage.cpp
 
 LOCAL_WHOLE_STATIC_LIBRARIES := \
 libc10 \
