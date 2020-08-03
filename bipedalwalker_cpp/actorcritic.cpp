@@ -189,7 +189,7 @@ void ActorCritic::Predict_Reward(torch::Tensor& next_state, GameContent* gamedat
 	torch::Tensor		action 		= distribute.Sample();
 	torch::Tensor   	actlogprob;
 	std::vector<Tensor> 					vec_act;
-	std::vector<unsigned char>::iterator	vit;
+	//std::vector<unsigned char>::iterator	vit;
 
 	for(int64_t i=0; i<m_shape; i++)
 		vec_act.push_back((action[i][i]));
@@ -213,8 +213,8 @@ void ActorCritic::Predict_Reward(torch::Tensor& next_state, GameContent* gamedat
     gamedata->m_actorlogprobs.push_back(actlogprob);
     gamedata->m_rewards.push_back(data_value);
 
-    vit 	= gamedata->m_bterminals.end()-1;
-    *vit	= true;
+    //vit 	= gamedata->m_bterminals.end()-1;
+    //*vit	= true;
     gamedata->m_bterminals.push_back(true);
 }
 
