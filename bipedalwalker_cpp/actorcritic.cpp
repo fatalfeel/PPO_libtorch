@@ -92,7 +92,6 @@ CRITICRET ActorCritic::Calculation(torch::Tensor& states, torch::Tensor& actions
 	CRITICRET cret;
 
 	torch::Tensor 		e2d_state;
-	torch::Tensor		one_state;
 	torch::Tensor		one_action;
 	torch::Tensor		act_mu;
 	torch::Tensor		mat_std;
@@ -102,8 +101,7 @@ CRITICRET ActorCritic::Calculation(torch::Tensor& states, torch::Tensor& actions
 	std::vector<Tensor> vec_actlogprobs;
 	std::vector<Tensor> vec_entropys;
 
-	int64_t states_size = states.size(0);
-	for(int64_t i=0; i<states_size; i++)
+	for(int64_t i=0; i<states.size(0); i++)
 	{
 		e2d_state			= states[i].reshape({1,-1});
 		one_action			= actions[i].reshape({1,-1});
