@@ -122,7 +122,7 @@ CRITICRET ActorCritic::Calculation(torch::Tensor& states, torch::Tensor& actions
 
 		entropy       		= distribute.Entropy();
 		//entropy 			= entropy.diagonal().sum(-1,true);
-		entropy 			= entropy.sum(-1,true);
+		entropy 			= entropy.sum(-1);
 		vec_entropys.push_back(entropy);
 	}
 
