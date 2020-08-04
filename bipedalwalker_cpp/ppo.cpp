@@ -104,7 +104,7 @@ void CPPO::Train_Update(GameContent* gamedata)
 			{
 				double* 	data_p0 = (double*)p.value().data_ptr();
 				IntArrayRef size_p0 = p.value().sizes();
-				int cc = 0;
+				std::cout << p.value() << std::endl;
 			}
 		}*/
 
@@ -118,7 +118,7 @@ void CPPO::Train_Update(GameContent* gamedata)
 			{
 				double* 	data_p0 = (double*)p.value().data_ptr();
 				IntArrayRef size_p0 = p.value().sizes();
-				int cc = 0;
+				std::cout << p.value() << std::endl;
 			}
 		}*/
 	}

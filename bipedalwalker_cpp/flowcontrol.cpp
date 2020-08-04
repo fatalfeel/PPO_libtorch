@@ -15,7 +15,7 @@ FlowControl::FlowControl()
 {
 	m_started 	= 0;
 	m_gamedata	= new GameContent();
-	m_ppo 		= new CPPO((int64_t)4, (double)0.0005f, std::make_tuple((double)0.9f, (double)0.999f), (double)0.99f, (double)0.2f);
+	m_ppo 		= new CPPO((int64_t)40, (double)0.0001f, std::make_tuple((double)0.9f, (double)0.999f), (double)0.99f, (double)0.2f);
 }
 
 FlowControl::~FlowControl()
