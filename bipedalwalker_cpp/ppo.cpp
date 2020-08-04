@@ -64,71 +64,27 @@ void CPPO::Train_Update(GameContent* gamedata)
         s00 		= rdp.sizes();*/
 	}
 
-	//debug use
-	/*rdp			= rewards[3];
-	data_out00 	= (double*)rdp.data_ptr();
-	s00 		= rdp.sizes();
-
-	rdp			= rewards[2];
-	data_out00 	= (double*)rdp.data_ptr();
-	s00 		= rdp.sizes();
-
-	rdp			= rewards[1];
-	data_out00 	= (double*)rdp.data_ptr();
-	s00 		= rdp.sizes();
-
-	rdp			= rewards[0];
-	data_out00 	= (double*)rdp.data_ptr();
-	s00 		= rdp.sizes();*/
-
 	torch::Tensor curr_states      	= torch::squeeze(torch::stack(gamedata->m_states)).detach();
 	torch::Tensor curr_actions      = torch::squeeze(torch::stack(gamedata->m_actions)).detach();
 	torch::Tensor curr_actlogprobs	= torch::squeeze(torch::stack(gamedata->m_actorlogprobs)).detach();
 	torch::Tensor vec_rewards		= torch::squeeze(torch::stack(rewards)).detach();
 
 	torch::Tensor critic_vpi  = m_policy_ac->Critic_Forward(curr_states);
-	//double* 	data_out00 	= (double*)critic_vpi.data_ptr();
-	//IntArrayRef s00			= critic_vpi.sizes();
 	critic_vpi  = torch::squeeze(critic_vpi);
 	torch::Tensor qsa_sub_vs  = vec_rewards - critic_vpi.detach();   // A(s,a) => Q(s,a) - V(s), V(s) is critic
 	torch::Tensor advantages  = (qsa_sub_vs - qsa_sub_vs.mean()) / (qsa_sub_vs.std() + 1e-5);
 
-	/*double* 	data_out01 	= (double*)curr_states.data_ptr();
-	IntArrayRef s01 		= curr_states.sizes();
-
-	double* 	data_out02 	= (double*)curr_actions.data_ptr();
-	IntArrayRef s02 		= curr_actions.sizes();*/
-
 	int64_t		i;
-	CRITICRET	cret;
 	Tensor 		ratios;
 	Tensor		surr1;
 	Tensor 		surr2;
 	Tensor 		mseloss; //mse loss
 	Tensor 		ppoloss; //ppo loss (negative for reward)
+	CRITICRET	cret;
+
 	for(i=0; i<m_train_epochs; i++)
 	{
-		cret = m_policy_ac->Calculation(curr_states, curr_actions);
-
-		// debug use
-		/*double* 	data_out03 	= (double*)curr_actlogprobs.data_ptr();
-		IntArrayRef s03			= curr_actlogprobs.sizes();
-
-		double* 	data_out04 	= (double*)vec_rewards.data_ptr();
-		IntArrayRef s04			= vec_rewards.sizes();
-
-		double* 	data_out05 	= (double*)advantages.data_ptr();
-		IntArrayRef s05			= advantages.sizes();
-
-		double* 	data_out06 	= (double*)cret.next_critic_values.data_ptr();
-		IntArrayRef s06 		= cret.next_critic_values.sizes();
-
-		double* 	data_out07 	= (double*)cret.entropys.data_ptr();
-		IntArrayRef s07 		= cret.entropys.sizes();
-
-		double* 	data_out08 	= (double*)cret.critic_actlogprobs.data_ptr();
-		IntArrayRef s08 		= cret.critic_actlogprobs.sizes();*/
-
+		cret 	= m_policy_ac->Calculation(curr_states, curr_actions);
 		ratios  = torch::exp(cret.critic_actlogprobs - curr_actlogprobs.detach());
 
 		surr1   = ratios * advantages;

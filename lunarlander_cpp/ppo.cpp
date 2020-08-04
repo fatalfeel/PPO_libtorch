@@ -63,19 +63,6 @@ void CPPO::Train_Update(GameContent* gamedata)
         data_out02 	= (double*)rdp.data_ptr();*/
 	}
 
-	//debug use
-	/*rdp			= rewards[3];
-	data_out02 	= (double*)rdp.data_ptr();
-
-	rdp			= rewards[2];
-	data_out02 	= (double*)rdp.data_ptr();
-
-	rdp			= rewards[1];
-	data_out02 	= (double*)rdp.data_ptr();
-
-	rdp			= rewards[0];
-	data_out02 	= (double*)rdp.data_ptr();*/
-
 	torch::Tensor curr_states      	= torch::stack(gamedata->m_states).detach();
 	torch::Tensor curr_actions      = torch::stack(gamedata->m_actions).detach();
 	torch::Tensor curr_actlogprobs	= torch::stack(gamedata->m_actorlogprobs).detach();
@@ -87,12 +74,13 @@ void CPPO::Train_Update(GameContent* gamedata)
 	torch::Tensor advantages  = (qsa_sub_vs - qsa_sub_vs.mean()) / (qsa_sub_vs.std() + 1e-5);
 
 	int64_t		i;
-	CRITICRET	cret;
 	Tensor 		ratios;
 	Tensor		surr1;
 	Tensor 		surr2;
 	Tensor 		mseloss; //mse loss
 	Tensor 		ppoloss; //ppo loss (negative for reward)
+	CRITICRET	cret;
+
 	for(i=0; i<m_train_epochs; i++)
 	{
 		cret 	= m_policy_ac->Calculation(curr_states, curr_actions);

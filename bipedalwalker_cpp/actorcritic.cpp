@@ -19,19 +19,20 @@ ActorCritic::ActorCritic(torch::Dtype dtype, int64_t shape, double scale)
 							nn::Functional(torch::tanh),
 							nn::Linear(32, 1));
 	//debug use
-	/*m_L0 = nn::Linear(64, 64);
-	m_actor = nn::Sequential(nn::Linear(8, 64),
+	/*m_L0 = nn::Linear(64, 32);
+	m_actor = nn::Sequential(nn::Linear(24, 64),
 							nn::Functional(torch::tanh),
 							m_L0,
-	                        nn::Functional(torch::tanh),
-							nn::Linear(64, 4));
+							nn::Functional(torch::tanh),
+							nn::Linear(32, 4),
+							nn::Functional(torch::tanh));
 
-	m_L1 = nn::Linear(64, 64);
-	m_critic = nn::Sequential(nn::Linear(8, 64),
+	m_L1 = nn::Linear(64, 32);
+	m_critic = nn::Sequential(nn::Linear(24, 64),
 							nn::Functional(torch::tanh),
 							m_L1,
 							nn::Functional(torch::tanh),
-							nn::Linear(64, 1));*/
+							nn::Linear(32, 1));*/
 
 	m_actor->to(dtype);
 	m_critic->to(dtype);
@@ -69,17 +70,15 @@ torch::Tensor ActorCritic::Interact(torch::Tensor envstate, GameContent* gamedat
 {
 	torch::Tensor 		e2d_state 	= envstate.reshape({1,-1});
 	torch::Tensor		act_mu 		= Actor_Forward(e2d_state);
-	torch::Tensor		mat_std 	= torch::diag(m_action_std);
-	NormalDistribute 	distribute(act_mu, mat_std);
+	//torch::Tensor		mat_std 	= torch::diag(m_action_std);
+	NormalDistribute 	distribute(act_mu, m_action_std);
 	torch::Tensor		action 		= distribute.Sample();
 	torch::Tensor   	actlogprob;
 
-	action 		= action.diagonal().view({1,-1});
-	//double* 	data_out02 	= (double*)action.data_ptr();
-	//IntArrayRef s02		= action.sizes();
-
+	//action 		= action.diagonal().view({1,-1});
 	actlogprob	= distribute.Log_Prob(action);
-	actlogprob 	= actlogprob.diagonal().sum(-1,true);
+	//actlogprob 	= actlogprob.diagonal().sum(-1,true);
+	actlogprob 	= actlogprob.sum(-1);
 
 	gamedata->m_states.push_back(e2d_state);
 	gamedata->m_actions.push_back(action);
@@ -106,27 +105,24 @@ CRITICRET ActorCritic::Calculation(torch::Tensor& states, torch::Tensor& actions
 	int64_t states_size = states.size(0);
 	for(int64_t i=0; i<states_size; i++)
 	{
-		e2d_state	= states[i].reshape({1,-1});
-		one_action	= actions[i].reshape({1,-1});
+		e2d_state			= states[i].reshape({1,-1});
+		one_action			= actions[i].reshape({1,-1});
 
-		/*double* 	data_out01 	= (double*)e2d_state.data_ptr();
-		IntArrayRef s01			= e2d_state.sizes();
+		/*std::cout << e2d_state << std::endl;
+		std::cout << one_action << std::endl;*/
 
-		double* 	data_out02 	= (double*)one_action.data_ptr();
-		IntArrayRef s02			= one_action.sizes();*/
+		act_mu 				= Actor_Forward(e2d_state);
+		//mat_std 			= torch::diag(m_action_std);
 
-		act_mu 		= Actor_Forward(e2d_state);
-		mat_std 	= torch::diag(m_action_std);
-
-		NormalDistribute distribute(act_mu, mat_std);
+		NormalDistribute distribute(act_mu, m_action_std);
 		critic_actlogprob	= distribute.Log_Prob(one_action);
-
-
-		critic_actlogprob 	= critic_actlogprob.diagonal().sum(-1, true);
+		//critic_actlogprob 	= critic_actlogprob.diagonal().sum(-1, true);
+		critic_actlogprob 	= critic_actlogprob.sum(-1);
 		vec_actlogprobs.push_back(critic_actlogprob);
 
 		entropy       		= distribute.Entropy();
-		entropy 			= entropy.diagonal().sum(-1,true);
+		//entropy 			= entropy.diagonal().sum(-1,true);
+		entropy 			= entropy.sum(-1,true);
 		vec_entropys.push_back(entropy);
 	}
 
@@ -143,20 +139,16 @@ void ActorCritic::Predict_Reward(torch::Tensor& next_state, GameContent* gamedat
 {
 	torch::Tensor 		e2d_state 	= next_state.reshape({1,-1}).to(torch::kFloat64);
 	torch::Tensor 		act_mu 		= Actor_Forward(e2d_state);
-	torch::Tensor		mat_std 	= torch::diag(m_action_std).to(torch::kFloat64);
-	NormalDistribute 	distribute(act_mu, mat_std);
+	//torch::Tensor		mat_std 	= torch::diag(m_action_std).to(torch::kFloat64);
+	NormalDistribute 	distribute(act_mu, m_action_std);
 	torch::Tensor		action 		= distribute.Sample();
 	torch::Tensor   	actlogprob;
-	//std::vector<Tensor> 					vec_act;
 	//std::vector<unsigned char>::iterator	vit;
 
-	/*for(int64_t i=0; i<m_shape; i++)
-		vec_act.push_back((action[i][i]));
-	action = torch::stack(vec_act).reshape({1,-1});**/
-
-	action 		= action.diagonal().view({1,-1});
+	//action 		= action.diagonal().view({1,-1});
 	actlogprob 	= distribute.Log_Prob(action);
-	actlogprob 	= actlogprob.diagonal().sum(-1, true);
+	//actlogprob 	= actlogprob.diagonal().sum(-1,true);
+	actlogprob 	= actlogprob.sum(-1);
 
 	//next_state for 1d
 	torch::Tensor	next_value  = Critic_Forward(next_state);
