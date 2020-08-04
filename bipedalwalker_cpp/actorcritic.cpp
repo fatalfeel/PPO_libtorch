@@ -108,13 +108,11 @@ CRITICRET ActorCritic::Calculation(torch::Tensor& states, torch::Tensor& actions
 		e2d_state			= states[i].reshape({1,-1});
 		one_action			= actions[i].reshape({1,-1});
 
-		/*std::cout << e2d_state << std::endl;
-		std::cout << one_action << std::endl;*/
-
 		act_mu 				= Actor_Forward(e2d_state);
 		//mat_std 			= torch::diag(m_action_std);
 
 		NormalDistribute distribute(act_mu, m_action_std);
+
 		critic_actlogprob	= distribute.Log_Prob(one_action);
 		//critic_actlogprob 	= critic_actlogprob.diagonal().sum(-1, true);
 		critic_actlogprob 	= critic_actlogprob.sum(-1);
