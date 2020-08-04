@@ -108,7 +108,7 @@ void CPPO::Train_Update(GameContent* gamedata)
 	Tensor 		ppoloss; //ppo loss (negative for reward)
 	for(i=0; i<m_train_epochs; i++)
 	{
-		cret 	= m_policy_ac->Calculation(curr_states, curr_actions);
+		cret = m_policy_ac->Calculation(curr_states, curr_actions);
 
 		// debug use
 		/*double* 	data_out03 	= (double*)curr_actlogprobs.data_ptr();

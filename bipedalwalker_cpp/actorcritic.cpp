@@ -67,100 +67,65 @@ torch::Tensor ActorCritic::Critic_Forward(torch::Tensor& input)
 
 torch::Tensor ActorCritic::Interact(torch::Tensor envstate, GameContent* gamedata)
 {
-	torch::Tensor 		e2d_state = envstate.reshape({1,-1}).to(torch::kFloat64);
-	torch::Tensor 		act_mu 		= Actor_Forward(e2d_state);
-	torch::Tensor		mat_std 	= torch::diag(m_action_std).to(torch::kFloat64);
+	torch::Tensor 		e2d_state 	= envstate.reshape({1,-1});
+	torch::Tensor		act_mu 		= Actor_Forward(e2d_state);
+	torch::Tensor		mat_std 	= torch::diag(m_action_std);
 	NormalDistribute 	distribute(act_mu, mat_std);
 	torch::Tensor		action 		= distribute.Sample();
 	torch::Tensor   	actlogprob;
-	std::vector<Tensor> vec_act;
 
-	for(int64_t i=0; i<m_shape; i++)
-		vec_act.push_back((action[i][i]));
-	action = torch::stack(vec_act).reshape({1,-1});
+	action 		= action.diagonal().view({1,-1});
+	//double* 	data_out02 	= (double*)action.data_ptr();
+	//IntArrayRef s02		= action.sizes();
 
-	actlogprob = distribute.Log_Prob(action);
-	//debug use
-	/*IntArrayRef s01 		= actlogprob.sizes();
-	double*		data_out01 	= (double*)actlogprob.data_ptr();
-	for(int i=0; i<4; i++)
-	{
-		std::cout << data_out01[i*4+0];
-		std::cout << " ";
-		std::cout << data_out01[i*4+1];
-		std::cout << " ";
-		std::cout << data_out01[i*4+2];
-		std::cout << " ";
-		std::cout << data_out01[i*4+3];
-		std::cout << std::endl;
-	}*/
-	actlogprob = actlogprob.diagonal().sum(-1,true);
+	actlogprob	= distribute.Log_Prob(action);
+	actlogprob 	= actlogprob.diagonal().sum(-1,true);
 
-	/*double* 	data_out00 	= (double*)actlogprob.data_ptr();
-	IntArrayRef s00 		= actlogprob.sizes();*/
-
-	gamedata->m_states.push_back(envstate);
+	gamedata->m_states.push_back(e2d_state);
 	gamedata->m_actions.push_back(action);
 	gamedata->m_actorlogprobs.push_back(actlogprob);
 
-	return action;
+	return action.detach();
 }
 
 CRITICRET ActorCritic::Calculation(torch::Tensor& states, torch::Tensor& actions)
 {
 	CRITICRET cret;
 
-	torch::Tensor 		entropy;
 	torch::Tensor 		e2d_state;
+	torch::Tensor		one_state;
+	torch::Tensor		one_action;
 	torch::Tensor		act_mu;
 	torch::Tensor		mat_std;
+	torch::Tensor 		entropy;
 	torch::Tensor 		critic_actlogprob;
+	torch::Tensor 		curr_states;
 	std::vector<Tensor> vec_actlogprobs;
 	std::vector<Tensor> vec_entropys;
-
-	/*double* 	data_out00 	= (double*)states.data_ptr();
-	IntArrayRef s00			= states.sizes();*/
 
 	int64_t states_size = states.size(0);
 	for(int64_t i=0; i<states_size; i++)
 	{
 		e2d_state	= states[i].reshape({1,-1});
+		one_action	= actions[i].reshape({1,-1});
+
+		/*double* 	data_out01 	= (double*)e2d_state.data_ptr();
+		IntArrayRef s01			= e2d_state.sizes();
+
+		double* 	data_out02 	= (double*)one_action.data_ptr();
+		IntArrayRef s02			= one_action.sizes();*/
+
 		act_mu 		= Actor_Forward(e2d_state);
-		mat_std 	= torch::diag(m_action_std).to(torch::kFloat64);
+		mat_std 	= torch::diag(m_action_std);
 
 		NormalDistribute distribute(act_mu, mat_std);
+		critic_actlogprob	= distribute.Log_Prob(one_action);
 
-		critic_actlogprob	= distribute.Log_Prob(actions[i]);
-		/*IntArrayRef s01 		= critic_actlogprob.sizes();
-		double*		data_out01 	= (double*)critic_actlogprob.data_ptr();
-		for(int i=0; i<4; i++)
-		{
-			std::cout << data_out01[i*4+0];
-			std::cout << " ";
-			std::cout << data_out01[i*4+1];
-			std::cout << " ";
-			std::cout << data_out01[i*4+2];
-			std::cout << " ";
-			std::cout << data_out01[i*4+3];
-			std::cout << std::endl;
-		}*/
+
 		critic_actlogprob 	= critic_actlogprob.diagonal().sum(-1, true);
 		vec_actlogprobs.push_back(critic_actlogprob);
 
 		entropy       		= distribute.Entropy();
-		/*IntArrayRef s02 		= entropy.sizes();
-		double*		data_out02 	= (double*)entropy.data_ptr();
-		for(int i=0; i<4; i++)
-		{
-			std::cout << data_out01[i*4+0];
-			std::cout << " ";
-			std::cout << data_out01[i*4+1];
-			std::cout << " ";
-			std::cout << data_out01[i*4+2];
-			std::cout << " ";
-			std::cout << data_out01[i*4+3];
-			std::cout << std::endl;
-		}*/
 		entropy 			= entropy.diagonal().sum(-1,true);
 		vec_entropys.push_back(entropy);
 	}
@@ -171,35 +136,27 @@ CRITICRET ActorCritic::Calculation(torch::Tensor& states, torch::Tensor& actions
 	cret.next_critic_values = Critic_Forward(states);
 	cret.next_critic_values	= torch::squeeze(cret.next_critic_values);
 
-	/*double* 	data_out00 	= (double*)cret.critic_actlogprobs.data_ptr();
-	IntArrayRef s00			= cret.critic_actlogprobs.sizes();
-
-	double* 	data_out01 	= (double*)cret.entropys.data_ptr();
-	IntArrayRef s01			= cret.entropys.sizes();*/
-
 	return cret;
 }
 
 void ActorCritic::Predict_Reward(torch::Tensor& next_state, GameContent* gamedata)
 {
-	torch::Tensor 		e2d_state = next_state.reshape({1,-1}).to(torch::kFloat64);
+	torch::Tensor 		e2d_state 	= next_state.reshape({1,-1}).to(torch::kFloat64);
 	torch::Tensor 		act_mu 		= Actor_Forward(e2d_state);
 	torch::Tensor		mat_std 	= torch::diag(m_action_std).to(torch::kFloat64);
 	NormalDistribute 	distribute(act_mu, mat_std);
 	torch::Tensor		action 		= distribute.Sample();
 	torch::Tensor   	actlogprob;
-	std::vector<Tensor> 					vec_act;
+	//std::vector<Tensor> 					vec_act;
 	//std::vector<unsigned char>::iterator	vit;
 
-	for(int64_t i=0; i<m_shape; i++)
+	/*for(int64_t i=0; i<m_shape; i++)
 		vec_act.push_back((action[i][i]));
-	action = torch::stack(vec_act).reshape({1,-1});
+	action = torch::stack(vec_act).reshape({1,-1});**/
 
-	actlogprob = distribute.Log_Prob(action);
-	actlogprob = actlogprob.diagonal().sum(-1,true);
-
-	double* 	data_out00 	= (double*)actlogprob.data_ptr();
-	IntArrayRef s00 		= actlogprob.sizes();
+	action 		= action.diagonal().view({1,-1});
+	actlogprob 	= distribute.Log_Prob(action);
+	actlogprob 	= actlogprob.diagonal().sum(-1, true);
 
 	//next_state for 1d
 	torch::Tensor	next_value  = Critic_Forward(next_state);
@@ -208,7 +165,7 @@ void ActorCritic::Predict_Reward(torch::Tensor& next_state, GameContent* gamedat
 	//debug use
 	//double* 	data_out00 	= (double*)data_value.data_ptr();
 	//IntArrayRef s00 		= data_value.sizes();
-    gamedata->m_states.push_back(next_state);
+    gamedata->m_states.push_back(e2d_state);
     gamedata->m_actions.push_back(action);
     gamedata->m_actorlogprobs.push_back(actlogprob);
     gamedata->m_rewards.push_back(data_value);
@@ -217,5 +174,3 @@ void ActorCritic::Predict_Reward(torch::Tensor& next_state, GameContent* gamedat
     //*vit	= true;
     gamedata->m_bterminals.push_back(true);
 }
-
-
