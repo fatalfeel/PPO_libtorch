@@ -25,8 +25,8 @@ public:
     nn::Sequential	m_actor;
     nn::Sequential 	m_critic;
 
-    //nn::Linear      m_L0{nullptr}; //debug use
-    //nn::Linear		m_L1{nullptr}; //debug use
+    //nn::Linear	m_L0{nullptr}; //debug use
+    //nn::Linear	m_L1{nullptr}; //debug use
 };
 
 #endif
