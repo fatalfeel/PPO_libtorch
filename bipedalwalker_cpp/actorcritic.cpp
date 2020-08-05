@@ -91,9 +91,7 @@ CRITICRET ActorCritic::Calculation(torch::Tensor& states, torch::Tensor& actions
 {
 	CRITICRET cret;
 
-	torch::Tensor 		e2d_state;
-	torch::Tensor		one_action;
-	torch::Tensor		act_mu;
+	torch::Tensor		acts_mu;
 	torch::Tensor		mat_std;
 	torch::Tensor 		entropy;
 	torch::Tensor 		critic_actlogprob;
@@ -101,29 +99,23 @@ CRITICRET ActorCritic::Calculation(torch::Tensor& states, torch::Tensor& actions
 	std::vector<Tensor> vec_actlogprobs;
 	std::vector<Tensor> vec_entropys;
 
-	for(int64_t i=0; i<states.size(0); i++)
+	acts_mu = Actor_Forward(states);
+
+	for(int64_t i=0; i<acts_mu.size(0); i++)
 	{
-		e2d_state			= states[i].reshape({1,-1});
-		one_action			= actions[i].reshape({1,-1});
+		NormalDistribute distribute(acts_mu[i], m_action_std);
 
-		act_mu 				= Actor_Forward(e2d_state);
-		//mat_std 			= torch::diag(m_action_std);
-
-		NormalDistribute distribute(act_mu, m_action_std);
-
-		critic_actlogprob	= distribute.Log_Prob(one_action);
-		//critic_actlogprob 	= critic_actlogprob.diagonal().sum(-1, true);
+		critic_actlogprob	= distribute.Log_Prob(actions[i]);
 		critic_actlogprob 	= critic_actlogprob.sum(-1);
 		vec_actlogprobs.push_back(critic_actlogprob);
 
 		entropy       		= distribute.Entropy();
-		//entropy 			= entropy.diagonal().sum(-1,true);
 		entropy 			= entropy.sum(-1);
 		vec_entropys.push_back(entropy);
 	}
 
-	cret.critic_actlogprobs = torch::squeeze(torch::stack(vec_actlogprobs));
-	cret.entropys 			= torch::squeeze(torch::stack(vec_entropys));
+	cret.critic_actlogprobs = torch::stack(vec_actlogprobs);
+	cret.entropys 			= torch::stack(vec_entropys);
 
 	cret.next_critic_values = Critic_Forward(states);
 	cret.next_critic_values	= torch::squeeze(cret.next_critic_values);
