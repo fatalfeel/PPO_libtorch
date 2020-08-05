@@ -98,8 +98,8 @@ CRITICRET ActorCritic::Calculation(torch::Tensor& states, torch::Tensor& actions
 	//align acts_mu actions size
 	for(int64_t i=0; i<acts_mu.size(0) && i<actions.size(0); i++)
 	{
-		//Tensor mu 	= torch::tensor(ArrayRef<double>({ 10.1,  10.1,  10.1,  110.1}), torch::kFloat64);
-		//Tensor act 	= torch::tensor(ArrayRef<double>({ 0.2,  0.2,  0.2,  0.2}), torch::kFloat64);
+		//Tensor mu 	= torch::tensor(ArrayRef<double>({5.1,  0.1,  9.1,  0.1}), torch::kFloat64);
+		//Tensor act 	= torch::tensor(ArrayRef<double>({-0.2,  0.1, -0.2,  0.1}), torch::kFloat64);
 		NormalDistribute distribute(acts_mu[i], m_action_std);
 
 		critic_actlogprob	= distribute.Log_Prob(actions[i]);
