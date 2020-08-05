@@ -14,7 +14,7 @@ Eclipse Luna SR2 64bits linux ADT + CDT + Openocd on Java8 Extract to /opt/eclip
 
 http://www.mediafire.com/file/8fb3dsi88j5iru9/eclipse_luna_adt_cdt_openocd.tar.gz
 
-3.Source code comment
+3.C++ source full comment refer
 
 https://github.com/fatalfeel/PPO_Pytorch
 
