@@ -114,6 +114,10 @@ CRITICRET ActorCritic::Calculation(torch::Tensor& states, torch::Tensor& actions
 	cret.critic_actlogprobs = torch::stack(vec_actlogprobs);
 	cret.entropys 			= torch::stack(vec_entropys);
 
+	/*std::cout << "critic_actlogprobs::\n" << cret.critic_actlogprobs << std::endl;
+	std::cout << "entropys::\n" << cret.entropys << std::endl;
+	std::cout << std::endl;*/
+
 	cret.next_critic_values = Critic_Forward(states);
 	cret.next_critic_values	= torch::squeeze(cret.next_critic_values);
 

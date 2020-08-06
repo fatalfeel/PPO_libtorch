@@ -54,7 +54,7 @@ torch::Tensor NormalDistribute::Log_Prob(torch::Tensor value)
 {
 	Tensor 	variance 	= m_scale.pow(2);
 	Tensor	log_scale	= m_scale.log();
-	Tensor	logprob		= -((value - m_mu).pow(2)) / (2 * variance) - log_scale - std::log(std::sqrt(2 * M_PI));
+	Tensor	logprob		= -(value - m_mu).pow(2) / (2 * variance) - log_scale - std::log(std::sqrt(2 * M_PI));
 
 	return logprob.to(torch::kFloat64);
 }
