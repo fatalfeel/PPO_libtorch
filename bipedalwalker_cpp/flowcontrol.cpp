@@ -71,7 +71,8 @@ void FlowControl::TrainingTest()
 	m_gamedata->m_rewards.push_back(reward);
 	m_gamedata->m_bterminals.push_back(false);
 
-	m_ppo->m_policy_ac->Predict_Reward(envstate, m_gamedata);
+	m_ppo->m_policy_ac->Predict_Reward(envstate, m_gamedata, (double)0.99f);
+
 	m_ppo->Train_Update(m_gamedata);
 
 	m_gamedata->ReleaseContent();

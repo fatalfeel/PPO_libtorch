@@ -30,7 +30,7 @@ void CPPO::Train_Update(GameContent* gamedata)
 {
 	std::vector<torch::Tensor>::iterator	it_reward;
 	std::vector<unsigned char>::iterator	it_bterminal;
-	std::vector<torch::Tensor> 				rewards;
+	std::vector<torch::Tensor> 				returns;
 	Tensor 									discounted_reward;
 
 	//debug use
@@ -38,7 +38,7 @@ void CPPO::Train_Update(GameContent* gamedata)
 	double*			data_out00;
 	IntArrayRef 	s00;*/
 
-	rewards				= {};
+	returns				= {};
 	discounted_reward	= torch::tensor(ArrayRef<double>({0.0}), torch::kFloat64);
 
 	for(it_reward=gamedata->m_rewards.end()-1, it_bterminal=gamedata->m_bterminals.end()-1;
@@ -46,9 +46,9 @@ void CPPO::Train_Update(GameContent* gamedata)
 		it_reward--,it_bterminal--)
 	{
 		//debug use
-		/*if(rewards.size()>0)
+		/*if(returns.size()>0)
 		{
-			rdp			= rewards[rewards.size()-1];
+			rdp			= returns[returns.size()-1];
 			data_out00 	= (double*)rdp.data_ptr();
 		}*/
 
@@ -56,10 +56,9 @@ void CPPO::Train_Update(GameContent* gamedata)
 			discounted_reward = torch::tensor(ArrayRef<double>({0.0}), torch::kFloat64);
 
         discounted_reward = *it_reward + m_gamma * discounted_reward;
+        returns.insert(returns.begin(),discounted_reward);
 
-        rewards.insert(rewards.begin(),discounted_reward);
-
-        /*rdp			= rewards[0];
+        /*rdp			= returns[0];
         data_out00 	= (double*)rdp.data_ptr();
         s00 		= rdp.sizes();*/
 	}
@@ -67,11 +66,11 @@ void CPPO::Train_Update(GameContent* gamedata)
 	torch::Tensor curr_states      	= torch::squeeze(torch::stack(gamedata->m_states)).detach();
 	torch::Tensor curr_actions      = torch::squeeze(torch::stack(gamedata->m_actions)).detach();
 	torch::Tensor curr_actlogprobs	= torch::squeeze(torch::stack(gamedata->m_actorlogprobs)).detach();
-	torch::Tensor vec_rewards		= torch::squeeze(torch::stack(rewards)).detach();
+	torch::Tensor vec_returns		= torch::squeeze(torch::stack(returns)).detach();
 
 	torch::Tensor critic_vpi  = m_policy_ac->Critic_Forward(curr_states);
 	critic_vpi  = torch::squeeze(critic_vpi);
-	torch::Tensor qsa_sub_vs  = vec_rewards - critic_vpi.detach();   // A(s,a) => Q(s,a) - V(s), V(s) is critic
+	torch::Tensor qsa_sub_vs  = vec_returns - critic_vpi.detach();   // A(s,a) => Q(s,a) - V(s), V(s) is critic
 	torch::Tensor advantages  = (qsa_sub_vs - qsa_sub_vs.mean()) / (qsa_sub_vs.std() + 1e-5);
 
 	int64_t		i;
@@ -90,7 +89,7 @@ void CPPO::Train_Update(GameContent* gamedata)
 		surr1   = ratios * advantages;
 		surr2   = torch::clamp(ratios, 1.0f-m_eps_clip, 1.0f+m_eps_clip) * advantages;
 
-		mseloss = 0.5*torch::mse_loss(cret.next_critic_values, vec_rewards, Reduction::Mean);
+		mseloss = 0.5*torch::mse_loss(cret.next_critic_values, vec_returns, Reduction::Mean);
 		ppoloss	= -torch::min(surr1, surr2) + mseloss - 0.01*cret.entropys;
 
 		m_optimizer->zero_grad();

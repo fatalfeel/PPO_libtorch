@@ -124,28 +124,22 @@ CRITICRET ActorCritic::Calculation(torch::Tensor& states, torch::Tensor& actions
 	return cret;
 }
 
-void ActorCritic::Predict_Reward(torch::Tensor& next_state, GameContent* gamedata)
+void ActorCritic::Predict_Reward(torch::Tensor& next_state, GameContent* gamedata, double gamma)
 {
-	torch::Tensor 		e2d_state 	= next_state.reshape({1,-1}).to(torch::kFloat64);
-	torch::Tensor 		act_mu 		= Actor_Forward(e2d_state);
-	NormalDistribute distribute(act_mu, m_action_std);
-	torch::Tensor		action 		= distribute.Sample();
-	torch::Tensor   	actlogprob;
-	//std::vector<unsigned char>::iterator	vit;
-
-	actlogprob 	= distribute.Log_Prob(action);
-	actlogprob 	= actlogprob.sum(-1);
-
-	//next_state for 1d
+	//torch::Tensor 		e2d_state 	= next_state.reshape({1,-1}).to(torch::kFloat64);
+	//torch::Tensor 		act_mu 		= Actor_Forward(e2d_state);
+	//NormalDistribute distribute(act_mu, m_action_std);
+	//torch::Tensor		action 		= distribute.Sample();
+	//torch::Tensor   	actlogprob;
 	torch::Tensor	next_value  = Critic_Forward(next_state);
 	torch::Tensor	data_value  = next_value.detach();
+	std::vector<unsigned char>::iterator vit_bterminal;
+	std::vector<torch::Tensor>::iterator vit_reward;
 
-    gamedata->m_states.push_back(e2d_state);
-    gamedata->m_actions.push_back(action);
-    gamedata->m_actorlogprobs.push_back(actlogprob);
-    gamedata->m_rewards.push_back(data_value);
-
-    //vit 	= gamedata->m_bterminals.end()-1;
-    //*vit	= true;
-    gamedata->m_bterminals.push_back(true);
+	vit_bterminal = gamedata->m_bterminals.end()-1;
+	if( *vit_bterminal == false )
+	{
+		vit_reward = gamedata->m_rewards.end()-1;
+		*vit_reward = *vit_reward + gamma*data_value;
+	}
 }
