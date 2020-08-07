@@ -124,5 +124,3 @@ void ActorCritic::Predict_Reward(torch::Tensor& next_state, GameContent* gamedat
 		*vit_reward = *vit_reward + gamma*data_value;
 	}
 }
-
-
