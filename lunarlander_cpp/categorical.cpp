@@ -68,16 +68,15 @@ torch::Tensor Categorical::Entropy()
     return -p_log_p.sum(-1).to(torch::kFloat64);
 }
 
-torch::Tensor Categorical::Log_Prob(torch::Tensor& actprob)
+torch::Tensor Categorical::Log_Prob(torch::Tensor actprob)
 {
 	std::vector<Tensor>	broadcasted_tensors;
-	torch::Tensor 		local_prob = actprob;
 
-	local_prob 			= local_prob.to(torch::kInt64).unsqueeze(-1);
-    broadcasted_tensors = torch::broadcast_tensors({local_prob, m_logits});
-    local_prob 			= broadcasted_tensors[0];
-    local_prob 			= local_prob.narrow(-1, 0, 1);
+	actprob 			= actprob.to(torch::kInt64).unsqueeze(-1);
+    broadcasted_tensors = torch::broadcast_tensors({actprob, m_logits});
+    actprob 			= broadcasted_tensors[0];
+    actprob 			= actprob.narrow(-1, 0, 1);
 
-    return broadcasted_tensors[1].gather(-1, local_prob).squeeze(-1).to(torch::kFloat64);
+    return broadcasted_tensors[1].gather(-1, actprob).squeeze(-1).to(torch::kFloat64);
 }
 
