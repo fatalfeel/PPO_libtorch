@@ -6,7 +6,7 @@ using namespace torch;
 #include "normaldistribute.h"
 #include "ppo.h"
 
-CPPO::CPPO(int64_t train_epochs, double lr, std::tuple<double,double> betas, double gamma, double eps_clip)
+CPPO::CPPO(int64_t train_epochs, double lr, std::tuple<double,double> betas, double gamma, double eps_clip, double vloss_coef, double entropy_coef)
 {
 	optim::AdamOptions options;
 	options.lr(lr);
@@ -15,6 +15,8 @@ CPPO::CPPO(int64_t train_epochs, double lr, std::tuple<double,double> betas, dou
 	m_train_epochs	= train_epochs;
 	m_gamma 		= gamma;
 	m_eps_clip		= eps_clip;
+	m_vloss_coef	= vloss_coef;
+	m_entropy_coef	= entropy_coef;
 
 	m_policy_ac = new ActorCritic(torch::kFloat64, 4, (double)0.5f);
 	m_optimizer = new optim::Adam(m_policy_ac->parameters(), options);
@@ -90,7 +92,7 @@ void CPPO::Train_Update(GameContent* gamedata)
 		surr2   = torch::clamp(ratios, 1.0f-m_eps_clip, 1.0f+m_eps_clip) * advantages;
 
 		mseloss = 0.5*torch::mse_loss(cret.next_critic_values, vec_returns, Reduction::None);
-		ppoloss	= -torch::min(surr1, surr2) + mseloss - 0.01*cret.entropys;
+		ppoloss	= -torch::min(surr1, surr2) + m_vloss_coef*mseloss - m_entropy_coef*cret.entropys;
 
 		m_optimizer->zero_grad();
 		ppoloss.mean().backward();
