@@ -68,17 +68,20 @@ void CPPO::Train_Update(GameContent* gamedata)
 	torch::Tensor curr_actlogprobs	= torch::stack(gamedata->m_actorlogprobs).detach();
 	torch::Tensor vec_returns		= torch::stack(returns).detach();
 
-	torch::Tensor critic_vpi  = m_policy_ac->Critic_Forward(curr_states);
-	critic_vpi  = torch::squeeze(critic_vpi);
-	torch::Tensor qsa_sub_vs  = vec_returns - critic_vpi.detach();   // A(s,a) => Q(s,a) - V(s), V(s) is critic
-	torch::Tensor advantages  = (qsa_sub_vs - qsa_sub_vs.mean()) / (qsa_sub_vs.std() + 1e-5);
+	torch::Tensor critic_vpi	= m_policy_ac->Critic_Forward(curr_states);
+	critic_vpi  				= torch::squeeze(critic_vpi);
+	torch::Tensor qsa_sub_vs  	= vec_returns - critic_vpi.detach();   // A(s,a) => Q(s,a) - V(s), V(s) is critic
+	torch::Tensor advantages  	= (qsa_sub_vs - qsa_sub_vs.mean()) / (qsa_sub_vs.std() + 1e-5);
 
 	int64_t		i;
 	Tensor 		ratios;
 	Tensor		surr1;
 	Tensor 		surr2;
-	Tensor 		mseloss; //mse loss
-	Tensor 		ppoloss; //ppo loss (negative for reward)
+	Tensor		value_predict_clip;
+	Tensor		value_predict_loss;
+	Tensor		value_critic_loss;
+	Tensor 		value_loss;
+	Tensor 		ppoloss;
 	CRITICRET	cret;
 
 	for(i=0; i<m_train_epochs; i++)
@@ -89,8 +92,17 @@ void CPPO::Train_Update(GameContent* gamedata)
 		surr1   = ratios * advantages;
 		surr2   = torch::clamp(ratios, 1.0f-m_eps_clip, 1.0f+m_eps_clip) * advantages;
 
-		mseloss = 0.5*torch::mse_loss(cret.next_critic_values, vec_returns, Reduction::None);
-		ppoloss	= -torch::min(surr1, surr2) + m_vloss_coef*mseloss - m_entropy_coef*cret.entropys;
+		/*value_predict_clip  = critic_vpi.detach() + (next_critic_values - critic_vpi.detach()).clamp(-self.eps_clip, self.eps_clip)
+		  value_predict_loss  = self.MseLoss(value_predict_clip, returns)
+		  value_critic_loss   = self.MseLoss(next_critic_values, returns)
+		  value_loss          = 0.5 * torch.max(value_predict_loss, value_critic_loss) #combine 2 biggest loss, not pick one of them*/
+		//mseloss = 0.5*torch::mse_loss(cret.next_critic_values, vec_returns, Reduction::None);
+		value_predict_clip	= critic_vpi.detach() + (cret.next_critic_values - critic_vpi.detach()).clamp(-m_eps_clip, m_eps_clip);
+		value_predict_loss  = torch::mse_loss(value_predict_clip, vec_returns, Reduction::None);
+		value_critic_loss   = torch::mse_loss(cret.next_critic_values, vec_returns, Reduction::None);
+		value_loss          = (double)0.5 * torch::max(value_predict_loss, value_critic_loss);
+
+		ppoloss	= -torch::min(surr1, surr2) + m_vloss_coef*value_loss - m_entropy_coef*cret.entropys;
 
 		m_optimizer->zero_grad();
 		ppoloss.mean().backward();
@@ -101,9 +113,8 @@ void CPPO::Train_Update(GameContent* gamedata)
 		{
 			if (p.key().find("weight") != std::string::npos)
 			{
-				double* 	data_p0 = (double*)p.value().data_ptr();
 				IntArrayRef size_p0 = p.value().sizes();
-				int cc = 0;
+				std::cout << p.value() << std::endl;
 			}
 		}*/
 
@@ -115,9 +126,8 @@ void CPPO::Train_Update(GameContent* gamedata)
 		{
 			if (p.key().find("weight") != std::string::npos)
 			{
-				double* 	data_p0 = (double*)p.value().data_ptr();
 				IntArrayRef size_p0 = p.value().sizes();
-				int cc = 0;
+				std::cout << p.value() << std::endl;
 			}
 		}*/
 	}
