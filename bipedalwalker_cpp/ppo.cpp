@@ -94,6 +94,7 @@ void CPPO::Train_Update(GameContent* gamedata)
 		surr1   = ratios * advantages;
 		surr2   = torch::clamp(ratios, 1.0f-m_eps_clip, 1.0f+m_eps_clip) * advantages;
 
+		//we get all samples of critic_values, so value_preds_batch equal critic_values
 		/*value_predict_clip  = critic_vpi.detach() + (next_critic_values - critic_vpi.detach()).clamp(-self.eps_clip, self.eps_clip)
 		  value_predict_loss  = self.MseLoss(value_predict_clip, returns)
 		  value_critic_loss   = self.MseLoss(next_critic_values, returns)
