@@ -4,7 +4,7 @@ Cross Platform reinforcement learning AI on Ubuntu and Android
 
 1.Preinstall libtorch
 
-https://fatalfeel.blogspot.com/2020/06/building-libtorch-and-numpy-in-c.html
+https://fatalfeel.blogspot.com/2013/12/libtorch-cross-compile-on-aarch64-linux.html
 
 2.Preinstall Eclipse LUNA SR2 and CDT
 
